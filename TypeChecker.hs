@@ -36,8 +36,54 @@ typeof ctx (App e1 e2) =
                              _ -> Nothing 
     _ -> Nothing 
 typeof ctx (Paren e) = typeof ctx e 
+-- Adição atividades solicitadas
+typeof ctx (Sub e1 e2) = case (typeof ctx e1, typeof ctx e2) of 
+                       (Just TNum, Just TNum) -> Just TNum 
+                       _                      -> Nothing
+typeof ctx (Mult e1 e2) = case (typeof ctx e1, typeof ctx e2) of 
+                       (Just TNum, Just TNum) -> Just TNum 
+                       _                      -> Nothing
+typeof ctx (Div e1 e2) = case (typeof ctx e1, typeof ctx e2) of 
+                       (Just TNum, Just TNum) -> Just TNum 
+                       _                      -> Nothing
+typeof ctx (Or e1 e2) = case (typeof ctx e1, typeof ctx e2) of 
+                       (Just TNum, Just TNum) -> Just TNum 
+                       _                      -> Nothing
+typeof ctx (Not e1) = case typeof ctx e1 of
+    Just TBool -> Just TBool
+    _          -> Nothing
+typeof ctx (Maior e1 e2) = case (typeof ctx e1, typeof ctx e2) of
+    (Just TNum, Just TNum) -> Just TBool
+    _                      -> Nothing
 
-                             
+typeof ctx (Menor e1 e2) = case (typeof ctx e1, typeof ctx e2) of
+    (Just TNum, Just TNum) -> Just TBool
+    _                      -> Nothing
+
+typeof ctx (Igual e1 e2) = case (typeof ctx e1, typeof ctx e2) of
+    (Just TNum, Just TNum) -> Just TBool
+    _                      -> Nothing
+-- Adição para let
+typeof ctx (Let x e1 e2) = 
+    case typeof ctx e1 of
+        Just t1 -> typeof ((x, t1):ctx) e2 
+        _       -> Nothing 
+-- Adição para listas
+typeof ctx Null = Just (TList TVar)
+
+typeof ctx (Cons e1 e2) = case (typeof ctx e1, typeof ctx e2) of
+    (Just t1, Just (TList TVar)) -> Just (TList t1)
+    (Just t1, Just (TList t2)) | t1 == t2 -> Just (TList t1)
+    _ -> Nothing
+typeof ctx (IsNull e) = case typeof ctx e of
+    Just (TList _) -> Just TBool
+    _ -> Nothing
+typeof ctx (Head e) = case typeof ctx e of
+    Just (TList t) -> Just t
+    _ -> Nothing
+typeof ctx (Tail e) = case typeof ctx e of
+    Just (TList t) -> Just (TList t)
+    _ -> Nothing
 
 typecheck :: Expr -> Expr  
 typecheck e = case typeof [] e of 
