@@ -7,6 +7,10 @@ isValue BTrue       = True
 isValue BFalse      = True  
 isValue (Num _)     = True 
 isValue (Lam _ _ _) = True
+-- Adição para listas
+isValue (Cons e1 e2) = isValue e1 && isValue e2
+isValue Null = True
+
 isValue _           = False 
 
 subst :: String -> Expr -> Expr -> Expr
@@ -23,6 +27,23 @@ subst v e (Var x) = if v == x then
 subst v e (Lam x t b) = Lam x t (subst v e b)
 subst v e (App e1 e2) = App (subst v e e1) (subst v e e2)
 subst v e (Paren e1) = Paren (subst v e e1)
+-- Adição atividade solicitada
+subst v e (Or e1 e2) = Or (subst v e e1) (subst v e e2)
+subst v e (Not e1) = Not (subst v e e1)
+subst v e (Maior e1 e2) = Maior (subst v e e1) (subst v e e2)
+subst v e (Menor e1 e2) = Menor (subst v e e1) (subst v e e2)
+subst v e (Igual e1 e2) = Igual (subst v e e1) (subst v e e2)
+subst v e (Sub e1 e2) = Sub (subst v e e1) (subst v e e2)
+subst v e (Mult e1 e2) = Mult (subst v e e1) (subst v e e2)
+subst v e (Div e1 e2) = Div (subst v e e1) (subst v e e2)
+-- Adição para let
+subst v e (Let x e1 e2) = Let x (subst v e e1) (subst v e e2)
+-- Adição para listas
+subst v e Null = Null
+subst v e (Cons e1 e2) = Cons (subst v e e1) (subst v e e2)
+subst v e (IsNull e1) = IsNull (subst v e e1)
+subst v e (Head e1) = Head (subst v e e1)
+subst v e (Tail e1) = Tail (subst v e e1)
 
 
 step :: Expr -> Expr 
@@ -40,7 +61,51 @@ step (App e1@(Lam x t b) e2) | isValue e2 = subst x e2 b
                              | otherwise  = App e1 (step e2)
 step (App e1 e2) = App (step e1) e2 
 step (Paren e) = e 
-
+-- Adição atividade solicitada
+step (Sub (Num n1) (Num n2)) = Num (n1 - n2)     
+step (Sub (Num n1) e2) = Sub (Num n1) (step e2)
+step (Sub e1 e2) = Sub (step e1) e2
+step (Mult (Num n1) (Num n2)) = Num (n1 * n2)
+step (Mult (Num n1) e2) = Mult (Num n1) (step e2)
+step (Mult e1 e2) = Mult (step e1) e2
+step (Div (Num n1) (Num n2)) = Num (quot n1 n2)
+step (Div (Num n1) e2) = Div (Num n1) (step e2)
+step (Div e1 e2) = Div (step e1) e2
+step (Maior (Num n1) (Num n2)) |n1 > n2 = BTrue
+                               | otherwise = BFalse
+step (Maior (Num n1) e2) = Maior (Num n1) (step e2)
+step (Maior e1 e2) = Maior (step e1) e2
+step (Menor (Num n1) (Num n2)) |n1 < n2 = BTrue
+                               | otherwise = BFalse
+step (Menor (Num n1) e2) = Menor (Num n1) (step e2)
+step (Menor e1 e2) = Menor (step e1) e2
+step (Igual (Num n1) (Num n2)) |n1 == n2 = BTrue
+                               | otherwise = BFalse
+step (Igual (Num n1) e2) = Igual (Num n1) (step e2)
+step (Igual e1 e2) = Igual (step e1) e2
+step (Or BTrue e2) = BTrue 
+step (Or BFalse e2) = e2 
+step (Or e1 e2) = Or (step e1) e2 
+step (Not BTrue ) = BFalse 
+step (Not BFalse ) = BTrue 
+step (Not e1) = Not (step e1)
+-- Adição para let
+step (Let v e1 e2) | isValue e1 = subst v e1 e2 
+                   | otherwise = Let v (step e1) e2
+-- Adição para listas
+step (Cons v1 v2) | isValue v1 && isValue v2 = Cons v1 v2
+step (Cons e1 e2) | not (isValue e1) = Cons (step e1) e2
+                  | otherwise = Cons e1 (step e2)
+step (IsNull Null) = BTrue
+step (IsNull (Cons _ _)) = BFalse
+step (IsNull e) = IsNull (step e)
+step (Head Null) = Null
+step (Head (Cons v1 _)) | isValue v1 = v1
+step (Head e) = Head (step e)
+step (Tail Null) = Null
+step (Tail (Cons _ v2)) | isValue v2 = v2
+step (Tail e) = Tail (step e)
+        
 eval :: Expr -> Expr 
 eval e | isValue e = e 
        | otherwise = eval (step e)
