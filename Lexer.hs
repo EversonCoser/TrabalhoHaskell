@@ -91,7 +91,7 @@ lexer ('-':'>':cs) = TokenArrow : lexer cs
 lexer ('-':cs) = TokenSub : lexer cs
 lexer ('*':cs) = TokenMult : lexer cs 
 lexer ('/':cs) = TokenDiv : lexer cs 
-lexer ('|':cs) = TokenOr : lexer cs
+lexer ('|':'|':cs) = TokenOr : lexer cs
 lexer ('!':cs) = TokenNot : lexer cs
 lexer ('=':'=':cs) = TokenIgual : lexer cs
 lexer ('>':cs) = TokenMaior : lexer cs
