@@ -112,8 +112,8 @@ step (MenorL Null) = Null
 step (MenorL (Cons (Num n1) Null)) = Num n1 
 step (MenorL (Cons (Num n1) (Cons (Num n2) vs))) =
     if n1 < n2 then step (MenorL (Cons (Num n1) vs)) else step (MenorL (Cons (Num n2) vs))
-step (MenorL (Cons e1 e2)) = MenorL (Cons (step e1) e2) -- Avalia o primeiro elemento da lista
-step (MenorL e) = MenorL (step e) -- Avalia a lista
+step (MenorL (Cons e1 e2)) = MenorL (Cons (step e1) e2) 
+step (MenorL e) = MenorL (step e) 
         
 eval :: Expr -> Expr 
 eval e | isValue e = e 
