@@ -88,6 +88,7 @@ lexer (')':cs) = TokenRParen : lexer cs
 lexer ('&':'&':cs) = TokenAnd : lexer cs 
 lexer ('-':'>':cs) = TokenArrow : lexer cs 
 -- Adição da atividade solicitada
+lexer ('-':c:cs) | isDigit c = lexNum ('-':c:cs)
 lexer ('-':cs) = TokenSub : lexer cs
 lexer ('*':cs) = TokenMult : lexer cs 
 lexer ('/':cs) = TokenDiv : lexer cs 
@@ -108,8 +109,11 @@ lexer (c:cs) | isSpace c = lexer cs
              | isAlpha c = lexKW (c:cs)
 
 lexNum :: String -> [Token]
-lexNum cs = case span isDigit cs of 
-              (num, rest) -> TokenNum (read num) : lexer rest 
+-- Tratamento para incluir números negativos
+lexNum ('-':cs) = case span isDigit cs of
+                    (num, rest) -> TokenNum (read ('-':num)) : lexer rest 
+lexNum cs = case span isDigit cs of
+              (num, rest) -> TokenNum (read num) : lexer rest
 
 lexKW :: String -> [Token]
 lexKW cs = case span isAlpha cs of 
