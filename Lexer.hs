@@ -29,6 +29,8 @@ data Expr = BTrue
           | Head Expr
           | Tail Expr
           | IsNull Expr
+          -- Beecrowd
+          | MenorL Expr
           deriving Show 
 
 data Ty = TBool 
@@ -76,6 +78,8 @@ data Token = TokenTrue
            | TokenLColchetes
            | TokenRColchetes
            | TokenVirgula
+           -- Beecrowd
+           | TokenMenorL
            deriving Show 
 
 lexer :: String -> [Token]
@@ -109,11 +113,10 @@ lexer (c:cs) | isSpace c = lexer cs
              | isAlpha c = lexKW (c:cs)
 
 lexNum :: String -> [Token]
--- Tratamento para incluir números negativos
 lexNum ('-':cs) = case span isDigit cs of
-                    (num, rest) -> TokenNum (read ('-':num)) : lexer rest 
-lexNum cs = case span isDigit cs of
-              (num, rest) -> TokenNum (read num) : lexer rest
+                (num, rest) -> TokenNum (read ('-':num)) : lexer rest
+lexNum cs = case span isDigit cs of 
+              (num, rest) -> TokenNum (read num) : lexer rest 
 
 lexKW :: String -> [Token]
 lexKW cs = case span isAlpha cs of 
@@ -133,5 +136,7 @@ lexKW cs = case span isAlpha cs of
              ("head", rest) -> TokenHead : lexer rest 
              ("tail", rest) -> TokenTail : lexer rest 
              ("isnull", rest) -> TokenIsNull : lexer rest 
+             -- Beecrowd
+             ("menor", rest) -> TokenMenorL : lexer rest
              (var, rest) -> TokenVar var : lexer rest 
  

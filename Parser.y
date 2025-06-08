@@ -47,6 +47,8 @@ import Lexer
     '['            { TokenLColchetes }
     ']'            { TokenRColchetes }
     ','            { TokenVirgula }
+    -- Beecrowd
+    menor          { TokenMenorL }
 
 %nonassoc if then else 
 %nonassoc '\\' 
@@ -85,6 +87,8 @@ Exp     : num                           { Num $1 }
         | isnull Exp                    { IsNull $2 }
         | '[' ExpList ']'               { $2 }
         | '[' ']'                       { Null }
+        -- Beecrowd
+        | menor Exp                     { MenorL $2 }
 
 ExpList : Exp       { Cons $1 Null }
         | Exp ',' ExpList { Cons $1 $3 }

@@ -1,0 +1,1 @@
+let x = [9,2,3] in menor(x)

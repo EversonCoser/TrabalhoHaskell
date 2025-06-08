@@ -84,6 +84,10 @@ typeof ctx (Head e) = case typeof ctx e of
 typeof ctx (Tail e) = case typeof ctx e of
     Just (TList t) -> Just (TList t)
     _ -> Nothing
+-- Beecrowd
+typeof ctx (MenorL e) = case typeof ctx e of
+    Just (TList t) -> Just t
+    _         -> Nothing
 
 typecheck :: Expr -> Expr  
 typecheck e = case typeof [] e of 

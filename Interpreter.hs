@@ -44,6 +44,8 @@ subst v e (Cons e1 e2) = Cons (subst v e e1) (subst v e e2)
 subst v e (IsNull e1) = IsNull (subst v e e1)
 subst v e (Head e1) = Head (subst v e e1)
 subst v e (Tail e1) = Tail (subst v e e1)
+-- Beecrowd
+subst v e (MenorL e1) = MenorL (subst v e e1)
 
 
 step :: Expr -> Expr 
@@ -105,6 +107,13 @@ step (Head e) = Head (step e)
 step (Tail Null) = Null
 step (Tail (Cons _ v2)) | isValue v2 = v2
 step (Tail e) = Tail (step e)
+-- Beecrowd
+step (MenorL Null) = Null
+step (MenorL (Cons (Num n1) Null)) = Num n1 
+step (MenorL (Cons (Num n1) (Cons (Num n2) vs))) =
+    if n1 < n2 then step (MenorL (Cons (Num n1) vs)) else step (MenorL (Cons (Num n2) vs))
+step (MenorL (Cons e1 e2)) = MenorL (Cons (step e1) e2) -- Avalia o primeiro elemento da lista
+step (MenorL e) = MenorL (step e) -- Avalia a lista
         
 eval :: Expr -> Expr 
 eval e | isValue e = e 
