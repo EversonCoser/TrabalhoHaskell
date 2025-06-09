@@ -49,6 +49,7 @@ import Lexer
     ','            { TokenVirgula }
     -- Beecrowd
     menor          { TokenMenorL }
+    float          { TokenFloat $$ }
 
 %nonassoc if then else 
 %nonassoc '\\' 
@@ -89,6 +90,7 @@ Exp     : num                           { Num $1 }
         | '[' ']'                       { Null }
         -- Beecrowd
         | menor Exp                     { MenorL $2 }
+        | float                         { Float $1 }
 
 ExpList : Exp       { Cons $1 Null }
         | Exp ',' ExpList { Cons $1 $3 }

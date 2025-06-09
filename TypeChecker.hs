@@ -6,6 +6,7 @@ type Ctx = [(String, Ty)]
 
 typeof :: Ctx -> Expr -> Maybe Ty 
 typeof ctx (Num _) = Just TNum 
+typeof ctx (Float _) = Just TFloat
 typeof ctx BFalse = Just TBool 
 typeof ctx BTrue = Just TBool 
 typeof ctx (Add e1 e2) = case (typeof ctx e1, typeof ctx e2) of 
@@ -42,6 +43,9 @@ typeof ctx (Sub e1 e2) = case (typeof ctx e1, typeof ctx e2) of
                        _                      -> Nothing
 typeof ctx (Mult e1 e2) = case (typeof ctx e1, typeof ctx e2) of 
                        (Just TNum, Just TNum) -> Just TNum 
+                       (Just TFloat, Just TFloat) -> Just TFloat
+                       (Just TNum, Just TFloat) -> Just TFloat
+                       (Just TFloat, Just TNum) -> Just TFloat
                        _                      -> Nothing
 typeof ctx (Div e1 e2) = case (typeof ctx e1, typeof ctx e2) of 
                        (Just TNum, Just TNum) -> Just TNum 

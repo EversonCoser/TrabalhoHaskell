@@ -31,10 +31,12 @@ data Expr = BTrue
           | IsNull Expr
           -- Beecrowd
           | MenorL Expr
+          | Float Double
           deriving Show 
 
 data Ty = TBool 
         | TNum 
+        | TFloat
         | TFun Ty Ty 
         | TList Ty
         | TVar
@@ -80,6 +82,7 @@ data Token = TokenTrue
            | TokenVirgula
            -- Beecrowd
            | TokenMenorL
+           | TokenFloat Double
            deriving Show 
 
 lexer :: String -> [Token]
@@ -116,6 +119,8 @@ lexNum :: String -> [Token]
 lexNum ('-':cs) = case span isDigit cs of
                 (num, rest) -> TokenNum (read ('-':num)) : lexer rest
 lexNum cs = case span isDigit cs of 
+              (num, '.':rest) -> case span isDigit rest of
+                (fracPart, rest') -> TokenFloat (read (num ++ "." ++ fracPart)) : lexer rest'
               (num, rest) -> TokenNum (read num) : lexer rest 
 
 lexKW :: String -> [Token]
